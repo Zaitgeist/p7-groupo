@@ -1,0 +1,75 @@
+<template>
+  <div class="container">
+    <form enctype="multipart/form-data">
+      <div class="form">
+        <input type="file" class="img-form" ref="file" @change="onSelect" />
+          <textarea class="text-form"  v-model="text"></textarea>
+        <div class="button-form">
+          <button @click.prevent="createPost">Post !</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+export default {
+  name: "Postform",
+  data() {
+    return {};
+  },
+  mounted() {
+    axios
+      .get("http://localhost:5000/user", {
+        headers: { token: localStorage.getItem("token") },
+      })
+      .then((res) => {
+        this.name = res.data.user.name;
+        this.profilPic = res.data.user.profilPic;
+      });
+  },
+  methods: {
+    onSelect() {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const file = this.$refs.file.files[0];
+      this.file = file;
+      console.log(this.file);
+      if (!allowedTypes.includes(file.type)) {
+        this.message = "Filetype is wrong!!";
+      }
+    },
+    createPost() {
+      const formData = new FormData();
+      formData.append("file", this.file);
+      axios.post("http://localhost:5000/upload", formData);
+      let newPost = {
+        profilPic: this.profilPic,
+        username: this.name,
+        img: this.file.name,
+        text: this.text,
+      };
+      axios.post("http://localhost:5000/postform", newPost).then;
+    },
+  },
+};
+</script>
+
+<style scoped>
+.container {
+  margin: 0% 30%;
+  background: rgb(221, 229, 244);
+  padding: 10px;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.text-form {
+  border:1px solid black;
+  resize: none;
+  height: 100px;
+}
+</style>
