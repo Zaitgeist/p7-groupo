@@ -10,7 +10,10 @@ export default {
 </script>
 
 <style scoped>
+
   body {
+    margin: 0;
+  padding: 0;
   user-select: none;
   display: flex;
   justify-content: center;

@@ -5,7 +5,7 @@
         <input type="file" class="img-form" ref="file" @change="onSelect" />
           <textarea class="text-form"  v-model="text"></textarea>
         <div class="button-form">
-          <button @click.prevent="createPost">Post !</button>
+          <button @click="createPost">Post !</button>
         </div>
       </div>
     </form>

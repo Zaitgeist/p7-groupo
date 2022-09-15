@@ -31,7 +31,7 @@ export default {
 
 <template>
   <div class="header">
-    <a href="" class="logo">Groupomania</a>
+    <router-link :to="{ path: '/landing' }" class="logo">Groupomania</router-link>
     <div class="header-right">
       <router-link :to="{ path: '/profil' }">{{ name }}</router-link>
       <a @click="logout">logout</a>
@@ -40,6 +40,10 @@ export default {
 </template>
 
 <style scoped>
+  body {
+  margin: 0;
+  padding: 0;
+}
 .header {
   overflow: hidden;
   background-color: #f1f1f1;
@@ -63,11 +67,6 @@ export default {
 .header a:hover {
   background-color: #ddd;
   color: black;
-}
-
-.header a.active {
-  background-color: dodgerblue;
-  color: white;
 }
 
 .header-right {
