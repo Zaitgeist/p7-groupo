@@ -1,5 +1,5 @@
 <template>
-  <div v-for="post in posts.slice().reverse()" class="container">
+  <div v-for="post in posts.slice().reverse()" v-bind:key="post._id" class="container"> 
     <div class="card">
       <div class="card-header">
         <img :src="post.img" :alt="post.img"/>
@@ -14,20 +14,25 @@
             <h3>{{post.username}}</h3>
             <div class="like">♥</div>
             <div class="liked">User1,User2,User3</div>
+            <div class="edit-button" v-if="post.username == this.userInfo.name || this.userInfo.admin == 1 ">
+            <button class="button" @click="modify">Modify</button>
+            <button class="button" @click="deletePost">Delete</button>
+          </div>
+          </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
 import axios from "axios";
 export default {
-  name: "Post",
+  name: "Posts",
   data() {
     return {
       posts: [],
+      userInfo: {},
     };
   },
 mounted() {
@@ -37,8 +42,26 @@ mounted() {
       this.posts = res.data;
       console.log(this.posts)
       })
-  }
-};
+axios
+      .get("http://localhost:5000/user", {
+        headers: { token: localStorage.getItem("token") },
+      })
+      .then((res) => {
+        this.userInfo = res.data.user;
+      });
+    },
+methods: {
+  deletePost(){
+        this.posts.forEach(post => {
+        const id = post._id;
+        console.log(id)
+        /*axios
+          .delete("http://localhost:5000/post/" + id)*/
+        });
+          
+        }
+}
+}
 </script>
 
 <style scoped>

@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
@@ -65,9 +66,11 @@ app.get("/user", (req, res, next) => {
       return res.status(200).json({
         title: "user grabbed",
         user: {
+          userId:decoded.userId,
           email: user.email,
           name: user.name,
           profilPic: user.profilPic,
+          admin: user.admin,
         },
       });
     });
@@ -114,6 +117,21 @@ app.get("/getposts",  (req, res, next) => {
     .then((posts) => res.status(200).json(posts))
     .catch((error) => res.status(400).json({ error }));
 });
+
+app.get("/getpost",  (req, res, next) => {
+  Post.findOne()
+    .then((post) => res.status(200).json(post))
+    .catch((error) => res.status(400).json({ error }));
+});
+
+app.delete("/post/:id", (req, res, next) => {
+  Post.findOne({ _id: req.params.id })
+  .then((post) => {
+      Post.deleteOne({ _id: req.params.id })
+        .then(() => res.status(200).json({ message: "post supprimé" }))
+        .catch((error) => res.status(400).json({ error }));
+    })
+  });
 
 const port = process.env.PORT || 5000;
 

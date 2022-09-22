@@ -25,6 +25,7 @@ export default {
         headers: { token: localStorage.getItem("token") },
       })
       .then((res) => {
+        this.userId = res.data.user.userId;
         this.name = res.data.user.name;
         this.profilPic = res.data.user.profilPic;
       });
@@ -34,7 +35,6 @@ export default {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const file = this.$refs.file.files[0];
       this.file = file;
-      console.log(this.file);
       if (!allowedTypes.includes(file.type)) {
         this.message = "Filetype is wrong!!";
       }
@@ -43,8 +43,10 @@ export default {
       const formData = new FormData();
       formData.append("file", this.file);
       axios.post("http://localhost:5000/upload", formData);
+      console.log(this.userId)
       let newPost = {
         profilPic: this.profilPic,
+        userId: this.userId,
         username: this.name,
         img: this.file.name,
         text: this.text,

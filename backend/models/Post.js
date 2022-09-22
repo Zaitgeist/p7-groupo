@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const postSchema = new Schema({
   profilPic: String,
+  userId: String,
   username: String,
   img: String,
   text: String,

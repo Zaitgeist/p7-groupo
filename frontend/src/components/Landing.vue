@@ -2,7 +2,7 @@
 import Navbar from "./Navbar.vue";
 import axios from "axios";
 import Postform from "./Postform.vue";
-import Post from "./Post.vue";
+import Posts from "./Posts.vue";
 
 export default {
   name: "Landing",
@@ -33,14 +33,14 @@ export default {
       this.$router.push("/");
     },
   },
-  components: { Navbar, Postform, Post },
+  components: { Navbar, Postform, Posts },
 };
 </script>
 <template>
   <Navbar />
   <div>
     <Postform />
-    <Post />
+    <Posts />
   </div>
 </template>
 
