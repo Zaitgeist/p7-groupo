@@ -28,6 +28,7 @@ export default {
         this.userId = res.data.user.userId;
         this.name = res.data.user.name;
         this.profilPic = res.data.user.profilPic;
+        this.email = res.data.user.email;
       });
   },
   methods: {
@@ -43,13 +44,13 @@ export default {
       const formData = new FormData();
       formData.append("file", this.file);
       axios.post("http://localhost:5000/upload", formData);
-      console.log(this.userId)
       let newPost = {
         profilPic: this.profilPic,
         userId: this.userId,
         username: this.name,
         img: this.file.name,
         text: this.text,
+        email : this.email,
       };
       axios.post("http://localhost:5000/postform", newPost).then;
     },

@@ -100,6 +100,7 @@ app.post("/postform", (req, res, next) => {
     username: req.body.username,
     img: `${req.protocol}://${req.get('host')}/uploads/${req.body.img}`,
     text: req.body.text,
+    email: req.body.email
   });
   newPost.save((err) => {
     if (err) {
@@ -109,6 +110,19 @@ app.post("/postform", (req, res, next) => {
       title: "Post crée",
     });
   });
+});
+
+app.post("/updatePost", (req, res, next) => {
+  const postObject= new Post({
+    img: `${req.protocol}://${req.get('host')}/uploads/${req.body.img}`,
+    text: req.body.text,
+  });
+Post.updateOne(
+{ _id: req.params.id },
+{ ...postObject, _id: req.params.id }
+)
+.then(() => res.status(200).json({ message: "Post modifié" }))
+.catch((error) => res.status(400).json({ error }));
 });
 
 //display
@@ -132,6 +146,24 @@ app.delete("/post/:id", (req, res, next) => {
         .catch((error) => res.status(400).json({ error }));
     })
   });
+
+app.post("/likePost",  (req, res, next) => {
+  Post.findOne({ _id: req.params.id }).then((post) => {
+    console.log(req.params)
+    let userId = req.body.userId; 
+    if (req.body.like == 1) {
+      post.likes += 1;
+      post.usersLiked.push(userId);
+    } else if (req.body.like == 0 && post.usersLiked.includes(userId)) {
+      post.likes -= 1;
+      post.usersLiked.remove(userId);
+    }
+    post
+      .save()
+      .then(() => res.status(201).json({ message: "great success" }))
+      .catch((error) => res.status(400).json({ error }));
+  });
+});
 
 const port = process.env.PORT || 5000;
 
