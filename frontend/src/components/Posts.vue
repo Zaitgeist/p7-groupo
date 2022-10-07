@@ -1,147 +1,29 @@
-<template>
-  <div v-for="(post, index) in posts.slice().reverse()" class="container">
-    <div class="card">
-      <div class="card-header">
-        <img v-if="!isEditing" :src="post.img" :alt="post.img" />
-        <input v-else type="file" class="img-form" ref="file" @change="onSelect" />
-      </div>
-      <div class="card-body">
-        <p v-if="!isEditing">
-          {{ post.text }}
-        </p>
-        <textarea v-else class="text-form" v-model="text"></textarea>
-        <div class="user">
-          <img :src="post.profilPic" alt="user" />
-          <div class="user-name">
-            <h3 @mouseover="mouseover" @mouseleave="mouseleave">{{ post.username }}</h3>
-            <div
-              id="hovercard"
-              v-show="showCard"
-              @mouseover="cardHover"
-              @mouseleave="cardLeave"
-            >
-              <div :class="['bg', { loaded: isLoaded }]"></div>
-              <div class="content">
-                <div class="name">
-                  {{ post.username }} <br />
-                  <a class="mail" :href="`mailto:${post.email}`">{{ post.email }} </a>
-                </div>
-              </div>
-            </div>
-            <div class="like">
-              <button class="like-button" @click="postLike()">♥</button>
-              <div class="liked">{{ post.likes }}</div>
-            </div>
-            <div
-              class="edit-button"
-              v-if="post.username == this.userInfo.name || this.userInfo.admin == 1"
-            >
-              <button class="button" @click="editMsg(index)" v-if="!isEditing">
-                Modify
-              </button>
-              <button v-if="isEditing" class="button" @click="saveEdit(post._id)">
-                Save
-              </button>
-              <button v-if="isEditing" class="button" @click="cancelEdit()">
-                Cancel
-              </button>
-
-              <button class="button" @click="deletePost(post._id)">Delete</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script>
+/<script>
+import Post from "./Post.vue"; 
 import axios from "axios";
 export default {
   name: "Posts",
   data() {
     return {
       posts: [],
-      userInfo: {},
-      timeout: null,
-      showCard: false,
-      isLoaded: false,
-      isEditing: false,
     };
   },
   mounted() {
     axios.get("http://localhost:5000/getposts").then((res) => {
       this.posts = res.data;
-    });
-    axios
-      .get("http://localhost:5000/user", {
-        headers: { token: localStorage.getItem("token") },
-      })
-      .then((res) => {
-        this.userInfo = res.data.user;
-      });
+      
+    })
   },
-  methods: {
-    editMsg() {
-      this.isEditing = true;
-    },
-    cancelEdit() {
-      this.isEditing = false;
-    },
-    onSelect() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      const file = this.$refs.file.files;
-      this.file = file;
-      console.log(this.file)
-      if (!allowedTypes.includes(file.type)) {
-        this.message = "Filetype is wrong!!";
-      }
-    },
-    saveEdit(id) {
-      const formData = new FormData();
-      formData.append("file", this.file);
-      axios.post("http://localhost:5000/upload", formData);
-      let postObject = {
-        img: this.file.name,
-        text: this.text,
-      };
-      axios.post("http://localhost:5000/updatePost" + id, postObject).then;
-    },
-  },
-    deletePost(id) {
-      axios.delete("http://localhost:5000/post/" + id);
-      this.posts = this.posts.filter((post) => id != post._id);
-    },
-    mouseover: function () {
-      clearTimeout(this.timeout);
-      var self = this;
-      this.timeout = setTimeout(function () {
-        self.showCard = true;
-        setTimeout(function () {
-          self.isLoaded = true;
-        }, 500);
-      }, 500);
-    },
-    mouseleave: function () {
-      var self = this;
-      this.timeout = setTimeout(function () {
-        self.showCard = false;
-        self.isLoaded = false;
-      }, 100);
-    },
-    cardHover: function () {
-      clearTimeout(this.timeout);
-      this.showCard = true;
-    },
-    cardLeave: function () {
-      var self = this;
-      this.timeout = setTimeout(function () {
-        self.showCard = false;
-        self.isLoaded = false;
-      }, 100);
-    },
+
+components: { Post }
+
 };
+
 </script>
+
+<template>
+        <Post v-for="post, index in posts.slice().reverse()"  v-bind:post="post" v-bind:index="index"> </Post>
+</template>
 
 <style scoped>
 .container {

@@ -8,14 +8,15 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const Post = require("./models/Post");
+const { update } = require("./models/User");
 
 mongoose.connect("mongodb://localhost:27017/DB");
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use('/uploads', express.static('uploads'));
-app.use('/profilpic', express.static('profilpic'));
+app.use("/uploads", express.static("uploads"));
+app.use("/profilpic", express.static("profilpic"));
 //register login
 app.post("/register", (req, res, next) => {
   console.log(req.body);
@@ -66,7 +67,7 @@ app.get("/user", (req, res, next) => {
       return res.status(200).json({
         title: "user grabbed",
         user: {
-          userId:decoded.userId,
+          userId: decoded.userId,
           email: user.email,
           name: user.name,
           profilPic: user.profilPic,
@@ -94,13 +95,13 @@ app.post("/upload", upload.single("file"), (req, res) => {
 });
 
 app.post("/postform", (req, res, next) => {
-  console.log(req.body.profilPic)
+  console.log(req.body.profilPic);
   const newPost = new Post({
     profilPic: req.body.profilPic,
     username: req.body.username,
-    img: `${req.protocol}://${req.get('host')}/uploads/${req.body.img}`,
+    img: `${req.protocol}://${req.get("host")}/uploads/${req.body.img}`,
     text: req.body.text,
-    email: req.body.email
+    email: req.body.email,
   });
   newPost.save((err) => {
     if (err) {
@@ -112,49 +113,45 @@ app.post("/postform", (req, res, next) => {
   });
 });
 
-app.post("/updatePost", (req, res, next) => {
-  const postObject= new Post({
-    img: `${req.protocol}://${req.get('host')}/uploads/${req.body.img}`,
-    text: req.body.text,
-  });
-Post.updateOne(
-{ _id: req.params.id },
-{ ...postObject, _id: req.params.id }
-)
-.then(() => res.status(200).json({ message: "Post modifié" }))
-.catch((error) => res.status(400).json({ error }));
+app.post("/updatePost/:id", (req, res, next) => {
+  const updatePost = req.file
+    ? {
+        img: `${req.protocol}://${req.get("host")}/uploads/${req.body.img}`,
+      }
+    : { ...req.body, img: `${req.protocol}://${req.get("host")}/uploads/${req.body.img}`};
+  Post.updateOne({ _id: req.params.id }, { ...updatePost, _id: req.params.id })
+    .then(() => res.status(200).json({ message: "Post mis a jour" }))
+    .catch((error) => res.status(400).json({ error }));
 });
 
 //display
-app.get("/getposts",  (req, res, next) => {
+app.get("/getposts", (req, res, next) => {
   Post.find()
     .then((posts) => res.status(200).json(posts))
     .catch((error) => res.status(400).json({ error }));
 });
 
-app.get("/getpost",  (req, res, next) => {
+app.get("/getpost", (req, res, next) => {
   Post.findOne()
     .then((post) => res.status(200).json(post))
     .catch((error) => res.status(400).json({ error }));
 });
 
 app.delete("/post/:id", (req, res, next) => {
-  Post.findOne({ _id: req.params.id })
-  .then((post) => {
-      Post.deleteOne({ _id: req.params.id })
-        .then(() => res.status(200).json({ message: "post supprimé" }))
-        .catch((error) => res.status(400).json({ error }));
-    })
-  });
-
-app.post("/likePost",  (req, res, next) => {
   Post.findOne({ _id: req.params.id }).then((post) => {
-    console.log(req.params)
-    let userId = req.body.userId; 
-    if (req.body.like == 1) {
+    Post.deleteOne({ _id: req.params.id })
+      .then(() => res.status(200).json({ message: "post supprimé" }))
+      .catch((error) => res.status(400).json({ error }));
+  });
+});
+
+app.post("/post/:id", (req, res, next) => {
+  Post.findOne({ _id: req.params.id }).then((post) => {
+    let userId = req.body.userId;
+    if (req.body.like == 1 ) {
       post.likes += 1;
       post.usersLiked.push(userId);
-    } else if (req.body.like == 0 && post.usersLiked.includes(userId)) {
+    } else if (req.body.like == 0 || post.usersLiked.includes(userId)) {
       post.likes -= 1;
       post.usersLiked.remove(userId);
     }

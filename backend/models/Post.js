@@ -9,7 +9,8 @@ const postSchema = new Schema({
   text: String,
   email: String,
   likes: String,
-  usersLiked: String,
+  likes: { type: Number, default:0 },
+  usersLiked: Array
 });
 
 const Post = mongoose.model("Post", postSchema, "Post");
