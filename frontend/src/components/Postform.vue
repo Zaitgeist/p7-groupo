@@ -41,6 +41,17 @@ export default {
       }
     },
     createPost() {
+      if (this.file == null) {
+      let newPost = {
+        profilPic: this.profilPic,
+        userId: this.userId,
+        username: this.name,
+        img: this.file.name,
+        text: this.text,
+        email : this.email,
+      };
+      axios.post("http://localhost:5000/postform", newPost).then;
+    } else if (this.file !== null) {
       const formData = new FormData();
       formData.append("file", this.file);
       axios.post("http://localhost:5000/upload", formData);
@@ -53,6 +64,7 @@ export default {
         email : this.email,
       };
       axios.post("http://localhost:5000/postform", newPost).then;
+    }
     },
   },
 };
@@ -60,7 +72,7 @@ export default {
 
 <style scoped>
 .container {
-  margin: 0% 30%;
+  margin: 0% 20%;
   background: rgb(221, 229, 244);
   padding: 10px;
 }
@@ -74,5 +86,13 @@ export default {
   border:1px solid black;
   resize: none;
   height: 100px;
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+  margin: 0% 0%;
+  background: rgb(221, 229, 244);
+  padding: 10px;
+}
 }
 </style>

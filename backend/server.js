@@ -8,7 +8,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const User = require("./models/User");
 const Post = require("./models/Post");
-const { update } = require("./models/User");
+const Comment = require("./models/Comment");
 
 mongoose.connect("mongodb://localhost:27017/DB");
 const app = express();
@@ -93,7 +93,7 @@ const upload = multer({
 app.post("/upload", upload.single("file"), (req, res) => {
   res.json({ file: req.file });
 });
-
+//post
 app.post("/postform", (req, res, next) => {
   console.log(req.body.profilPic);
   const newPost = new Post({
@@ -122,6 +122,39 @@ app.post("/updatePost/:id", (req, res, next) => {
   Post.updateOne({ _id: req.params.id }, { ...updatePost, _id: req.params.id })
     .then(() => res.status(200).json({ message: "Post mis a jour" }))
     .catch((error) => res.status(400).json({ error }));
+});
+
+//comment
+app.post("/commentForm", (req, res, next) => {
+  const newComment = new Comment({
+    postId: req.body.postId,
+    profilPic: req.body.profilPic,
+    username: req.body.username,
+    text: req.body.text,
+    email: req.body.email,
+  });
+  newComment.save((err) => {
+    if (err) {
+      return res.status(400).json({});
+    }
+    return res.status(200).json({
+      title: "Commentaire crée",
+    });
+  });
+});
+
+app.get("/getcomments/:id", (req, res, next) => { 
+  Comment.find({ postId: req.params.id})
+    .then((comments) => res.status(200).json(comments))
+    .catch((error) => res.status(400).json({ error }));
+});
+
+app.delete("/comment/:id", (req, res, next) => {
+  Comment.findOne({ _id: req.params.id }).then((post) => {
+    Comment.deleteOne({ _id: req.params.id })
+      .then(() => res.status(200).json({ message: "commentaire supprimé" }))
+      .catch((error) => res.status(400).json({ error }));
+  });
 });
 
 //display

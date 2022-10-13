@@ -6,18 +6,16 @@
         <input v-else type="file" class="img-form" ref="file" @change="onSelect" />
       </div>
       <div class="card-body">
-        <p v-if="!isEditing">
-          {{ post.text }}
-        </p>
-        <textarea v-else class="text-form" v-model="text"></textarea>
         <div class="user">
           <img :src="post.profilPic" alt="user" />
           <div class="user-name">
-            <Hover v-bind:post="post" />
-            <div class="like">
-              <button class="like-button" @click="postLike()">♥</button>
-              <div class="liked">{{ post.likes }}</div>
-            </div>
+            <hover v-bind:post="post" />
+            <div class="like-button" @click="postLike()">♥</div>
+            <div class="liked">{{ post.likes }}</div>
+            <p class="card-content" v-if="!isEditing">
+              {{ post.text }}
+            </p>
+            <textarea v-else class="text-form" v-model="text"></textarea>
             <div
               class="edit-button"
               v-if="post.username == this.userInfo.name || this.userInfo.admin == 1"
@@ -29,7 +27,6 @@
               <button v-if="isEditing" class="button" @click="cancelEdit()">
                 Cancel
               </button>
-
               <button class="button" @click="deletePost()">Delete</button>
             </div>
           </div>
@@ -37,15 +34,16 @@
       </div>
     </div>
   </div>
+  <commentForm :post="post"></commentForm>
+  <comments :post="post"></comments>
 </template>
 
 <script>
-import Hover from "./hover.vue";
+import comments from "./comments.vue";
+import commentForm from "./commentForm.vue";
+import hover from "./hover.vue";
 import axios from "axios";
 export default {
-  created() {
-    console.log(this.post);
-  },
   name: "Post",
   props: {
     post: {},
@@ -76,24 +74,6 @@ export default {
     cancelEdit() {
       this.isEditing = false;
     },
-    postLike() {
-      const id = this.id;
-      const post = this.post;
-      if (post.usersLiked.includes(this.userInfo.userId)) {
-        let liked = {
-          like: 0,
-          userId: this.userInfo.userId,
-        };
-        axios.post("http://localhost:5000/post/" + id, liked);  
-      } else {
-        let liked = {
-          like: 1,
-          userId: this.userInfo.userId,
-        };
-        console.log(liked);
-        axios.post("http://localhost:5000/post/" + id, liked);  
-      }
-    },
     onSelect() {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const file = this.$refs.file.files[0];
@@ -117,18 +97,40 @@ export default {
     deletePost() {
       const id = this.id;
       axios.delete("http://localhost:5000/post/" + id);
-      this.post = this.post.filter(() => id != id); // filter un objet ?????????
+      this.$el.parentNode.removeChild(this.$el);
+    },
+    postLike() {
+      const id = this.id;
+      const post = this.post;
+      if (post.usersLiked.includes(this.userInfo.userId)) {
+        let liked = {
+          like: 0,
+          userId: this.userInfo.userId,
+        };
+        axios.post("http://localhost:5000/post/" + id, liked);
+        post.likes -= 1;
+        post.usersLiked.pop(this.userInfo.userId);
+      } else {
+        let liked = {
+          like: 1,
+          userId: this.userInfo.userId,
+        };
+        console.log(liked);
+        axios.post("http://localhost:5000/post/" + id, liked);
+        post.likes += 1;
+        post.usersLiked.push(this.userInfo.userId);
+      }
     },
   },
 
-  components: { Hover },
+  components: { commentForm, comments, hover },
 };
 </script>
 
 <style scoped>
 .container {
   position: relative;
-  margin: 0% 30%;
+  margin: 0% 20%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -150,48 +152,46 @@ export default {
   justify-content: center;
   align-items: flex-start;
   padding: 5px;
+  background-color: blueviolet;
 }
 
-.card-body p {
-  font-size: 13px;
+.card-content {
+  font-size: 18px;
 }
 .user {
   display: flex;
-  margin-top: 10px;
+  margin: 10px 10px 0px;
 }
 
 .user img {
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
   margin-right: 10px;
   object-fit: cover;
 }
 
-.like {
+.like-button {
   position: absolute;
-  font-size: 25px;
-  bottom: 30px;
+  bottom: 50px;
   right: 20px;
+  font-size: 20px;
 }
 
-.like :hover {
+.like-button :hover {
   color: red;
 }
-
 .liked {
   position: absolute;
-  font-size: 13px;
-  bottom: 10px;
-  right: 25px;
+  font-size: 20px;
+  bottom: 50px;
+  right: 35px;
 }
 
 /* edit */
 .text-form {
   border: 1px solid black;
-  resize: none;
   height: 100px;
-  width: 90%;
 }
 
 .img-form {
@@ -202,5 +202,30 @@ export default {
   position: absolute;
   bottom: 10px;
   right: 20px;
+}
+
+.button {
+  background: linear-gradient(to bottom, #f02809 5%, #f21c00 100%);
+  background-color: #f02809;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: Arial;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 5px 8px;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #7a2a1d;
+}
+.button:hover {
+  background-color: #f21c00;
+}
+
+@media only screen and (max-width: 600px) {
+  .container {
+    margin: 0% 0%;
+    background: rgb(221, 229, 244);
+    padding: 10px;
+  }
 }
 </style>
