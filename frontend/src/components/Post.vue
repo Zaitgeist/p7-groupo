@@ -1,34 +1,61 @@
 <template>
   <div class="container">
     <div class="card">
+    <div v-if="isEditing"><!-- post edit-->
       <div class="card-header">
-        <img v-if="!isEditing" :src="post.img" :alt="post.img" />
-        <input v-else type="file" class="img-form" ref="file" @change="onSelect" />
+        <input type="file" class="img-form" ref="file" @change="onSelect" />
       </div>
       <div class="card-body">
         <div class="user">
           <img :src="post.profilPic" alt="user" />
           <div class="user-name">
             <hover v-bind:post="post" />
-            <div class="like-button" @click="postLike()">♥</div>
-            <div class="liked">{{ post.likes }}</div>
-            <p class="card-content" v-if="!isEditing">
-              {{ post.text }}
-            </p>
-            <textarea v-else class="text-form" v-model="text"></textarea>
-            <div
+          </div>
+        </div>
+        <div class="controls">
+          <div class="like-button" @click="postLike()">♥</div>
+          <div class="liked">{{ post.likes }}</div>
+        </div>
+        <p class="card-content">
+        <textarea  class="text-form" v-model="text"></textarea>
+        </p>
+        <div
               class="edit-button"
-              v-if="post.username == this.userInfo.name || this.userInfo.admin == 1"
-            >
-              <button class="button" @click="editMsg()" v-if="!isEditing">Modify</button>
-              <button v-if="isEditing" class="button" @click="saveEdit(post._id)">
+              v-if="post.username == this.userInfo.name || this.userInfo.admin == 1">
+              <button class="button" @click="saveEdit(post._id)">
                 Save
               </button>
-              <button v-if="isEditing" class="button" @click="cancelEdit()">
+              <button class="button" @click="cancelEdit()">
                 Cancel
               </button>
               <button class="button" @click="deletePost()">Delete</button>
-            </div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else> <!-- post affichage-->
+      <div class="card-header">
+        <img :src="post.img" :alt="post.img" />
+      </div>
+      <div class="card-body">
+        <div class="user">
+          <img :src="post.profilPic" alt="user" />
+          <div class="user-name">
+            <hover v-bind:post="post" />
+          </div>
+      </div>
+      <div class="controls">
+        <div class="like-button" @click="postLike()">♥</div>
+            <div class="liked">{{ post.likes }}</div>
+      </div>
+      <p class="card-content">
+              {{ post.text }}
+            </p>
+          <div
+              class="edit-button"
+              v-if="post.username == this.userInfo.name || this.userInfo.admin == 1">
+              <button class="button" @click="editMsg()" >Modify</button>
+              <button class="button" @click="deletePost()">Delete</button>
           </div>
         </div>
       </div>
@@ -36,6 +63,7 @@
   </div>
   <commentForm :post="post"></commentForm>
   <comments :post="post"></comments>
+
 </template>
 
 <script>

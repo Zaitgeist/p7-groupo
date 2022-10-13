@@ -5,15 +5,14 @@
         <div class="user">
           <img :src="comment.profilPic" alt="user" />
           <div class="username">
-            {{ comment.username }}
+          {{ comment.username }}
             <p class="comment-content">
-              {{ comment.text }}
+              {{ comment.text }} toto
             </p>
             <div
               class="button"
-              v-if="comment.username == this.userInfo.name || this.userInfo.admin == 1"
             >
-              <button class="button" @click="deleteComment()">Delete</button>
+              <button class="button" @click="deleteComment()">TOTO</button>
             </div>
           </div>
         </div>
@@ -25,7 +24,8 @@
 <script>
 import axios from "axios";
 export default {
-  created() {},
+  created() {
+  },
   name: "Comment",
   props: {
     comment: {},
@@ -37,6 +37,7 @@ export default {
     };
   },
   mounted() {
+    console.log(comment.username)
     axios
       .get("http://localhost:5000/user", {
         headers: { token: localStorage.getItem("token") },
@@ -102,6 +103,22 @@ export default {
 
 /* edit */
 
+.button {
+  background: linear-gradient(to bottom, #f02809 5%, #f21c00 100%);
+  background-color: #f02809;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: Arial;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 5px 8px;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #7a2a1d;
+}
+.button:hover {
+  background-color: #f21c00;
+}
 
 @media only screen and (max-width: 600px) {
   .container {

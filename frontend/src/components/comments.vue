@@ -14,7 +14,7 @@ export default {
   },
   mounted() {
     const id = this.id;
-    console.log(this.comments)
+    console.log("coucou")
     axios.get("http://localhost:5000/getcomments/"+ id).then((res) => {
       this.comments = res.data;
     });
