@@ -5,33 +5,50 @@ export default {
   name: "Profil",
   data() {
     return {
-      name: "",
-      email: "",
-      profilpic: "",
+      userInfo: {},
+      errorFileType: "",
+      file: "",
     };
   },
   mounted() {
     axios
-      .get("http://localhost:5000/user", {
+      .get("http://localhost:5000/user/userInfo", {
         headers: { token: localStorage.getItem("token") },
       })
       .then((res) => {
-        this.name = res.data.user.name;
-        this.email = res.data.user.email;
-        this.profilpic = res.data.user.profilPic;
+        this.userInfo = res.data.user;
       });
   },
   methods: {
     onSelect() {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const file = this.$refs.file.files[0];
-      this.file = file;
-      if (!allowedTypes.includes(file.type)) {
-        this.message = "Filetype is wrong!!";
+      if (allowedTypes.includes(file.type)) {
+        this.errorFileType = "";
+        this.file = file;
+      } else if (!allowedTypes.includes(file.type)) {
+        this.file = this.userInfo.profilPic;
+        this.errorFileType = "Seul les fichiers formats jpg/png/gif sont acceptés";
       }
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        this.userInfo.profilPic = e.target.result;
+      };
+      reader.readAsDataURL(this.file);
     },
     updateProfilpic() {
-    user.update
+      if (this.file == "") {
+        this.errorFileType = "Selectionner une nouvelle image de profil !";
+        return;
+      } else {
+        const id = this.userInfo.userId;
+        const userUpdate = new FormData();
+        if (this.name !== undefined) {
+          userUpdate.append("name", this.name);
+        }
+        userUpdate.append("file", this.file);
+        axios.post("http://localhost:5000/user/" + id, userUpdate);
+      }
     },
   },
   components: { Navbar },
@@ -43,13 +60,20 @@ export default {
   <div class="container">
     <div class="card">
       <div class="input-container">
-      <label for="input-file">
-        <img class="round" :src="this.profilpic" alt="user" />
-       </label>
-        <input type="file" ref="file" id="input-file" @change="onSelect" />
+        <label for="input-file">
+          <img class="round" :src="this.userInfo.profilPic" alt="user" />
+        </label>
+        <input
+          type="file"
+          accept="image/x-png,image/jpeg"
+          ref="file"
+          id="input-file"
+          @change="onSelect"
+        />
       </div>
-      <h1>{{ this.name }}</h1>
-      <h2>{{ this.email }}</h2>
+      {{ errorFileType }}
+      <h1>{{ this.userInfo.name }}</h1>
+      <h2>{{ this.userInfo.email }}</h2>
       <button @click.prevent="updateProfilpic">Update</button>
     </div>
   </div>
@@ -58,6 +82,7 @@ export default {
 <style scoped>
 h1 {
   margin: 10px 0;
+  text-transform: uppercase;
 }
 
 h2 {
@@ -79,7 +104,7 @@ p {
   flex-wrap: wrap;
 }
 .card {
-  background-color: #a3a3a3;
+  background-color: #7f8299;
   border-radius: 5px;
   box-shadow: 0px 10px 20px -10px rgba(0, 0, 0, 0.75);
   color: #020202;
@@ -92,9 +117,14 @@ p {
 .card .round {
   width: 250px;
   height: 250px;
-  border: 1px solid #d85230;
   border-radius: 50%;
   padding: 7px;
+}
+
+.card .round:hover {
+  color: #000;
+  opacity: 0.3;
+  z-index: 100;
 }
 
 input {
@@ -102,6 +132,27 @@ input {
 }
 
 .input-container :hover {
-    cursor: pointer;
+  cursor: pointer;
+}
+
+Button {
+  background-color: #4e5166;
+  border-radius: 3px;
+  border: 1px solid #0b0e07;
+  display: inline-block;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 15px;
+  padding: 1px 20px;
+  text-decoration: none;
+  text-shadow: 0px 1px 0px #263666;
+  margin-bottom: 10px;
+}
+Button:hover {
+  background-color: #625d78;
+}
+Button:active {
+  position: relative;
+  top: 1px;
 }
 </style>

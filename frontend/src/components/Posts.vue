@@ -1,4 +1,3 @@
-/
 <script>
 import Post from "./Post.vue";
 import axios from "axios";
@@ -10,20 +9,24 @@ export default {
     };
   },
   mounted() {
-    axios.get("http://localhost:5000/getposts").then((res) => {
+    axios.get("http://localhost:5000/post/").then((res) => {
       this.posts = res.data;
     });
+},
+  methods: {
+    deletePost(id) {
+      const index = this.posts.findIndex((post) => post._id === id)
+      this.posts.splice(index,1) 
+    },
   },
-
   components: { Post },
 };
 </script>
 
 <template>
   <Post
-    v-for="(post, index) in posts.slice().reverse()"
-    v-bind:post="post"
-    v-bind:index="index"
+    v-for="post in posts.slice().reverse()"
+    :post="post" :key="post._id" 
   >
   </Post>
 </template>
@@ -38,6 +41,7 @@ export default {
   z-index: 99;
   background-color: #fff;
 }
+
 .content {
   padding: 10px;
 }

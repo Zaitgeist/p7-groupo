@@ -9,15 +9,15 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 
+* {
+  font-family: 'Lato', sans-serif;
+}
   body {
-    margin: 0;
+  margin: 0;
   padding: 0;
-  user-select: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgb(221, 229, 244);
-  height: 100vh;
-} </style> 
+  background-color: #4E5166;
+  }
+  
+ </style> 

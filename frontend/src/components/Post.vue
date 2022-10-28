@@ -1,61 +1,74 @@
 <template>
   <div class="container">
     <div class="card">
-    <div v-if="isEditing"><!-- post edit-->
-      <div class="card-header">
-        <input type="file" class="img-form" ref="file" @change="onSelect" />
-      </div>
-      <div class="card-body">
-        <div class="user">
-          <img :src="post.profilPic" alt="user" />
-          <div class="user-name">
-            <hover v-bind:post="post" />
+      <div v-if="isEditing">
+        <!-- post edit-->
+        <div class="card-header-edit">
+        <label for="input-file-edit">
+            <div class="inputBtn"> Image...</div>         
+          <input
+            type="file"
+            accept="image/*"
+            class="img-form"
+            ref="file"
+            id="input-file-edit"
+            @change="onSelect"
+          />
+        </label>
+          {{ errorFileTypeEdit }}
+        </div>
+        <div class="card-body-edit">
+          <div class="card-content-edit">
+            <textarea class="text-form" :maxlength="max" v-model="text"></textarea>
+            <div class="count" v-text="max - text.length"></div>
           </div>
-        </div>
-        <div class="controls">
-          <div class="like-button" @click="postLike()">♥</div>
-          <div class="liked">{{ post.likes }}</div>
-        </div>
-        <p class="card-content">
-        <textarea  class="text-form" v-model="text"></textarea>
-        </p>
-        <div
-              class="edit-button"
-              v-if="post.username == this.userInfo.name || this.userInfo.admin == 1">
-              <button class="button" @click="saveEdit(post._id)">
-                Save
-              </button>
-              <button class="button" @click="cancelEdit()">
-                Cancel
-              </button>
-              <button class="button" @click="deletePost()">Delete</button>
-        </div>
-      </div>
-    </div>
-
-    <div v-else> <!-- post affichage-->
-      <div class="card-header">
-        <img :src="post.img" :alt="post.img" />
-      </div>
-      <div class="card-body">
-        <div class="user">
-          <img :src="post.profilPic" alt="user" />
-          <div class="user-name">
-            <hover v-bind:post="post" />
-          </div>
-      </div>
-      <div class="controls">
-        <div class="like-button" @click="postLike()">♥</div>
-            <div class="liked">{{ post.likes }}</div>
-      </div>
-      <p class="card-content">
-              {{ post.text }}
-            </p>
           <div
-              class="edit-button"
-              v-if="post.username == this.userInfo.name || this.userInfo.admin == 1">
-              <button class="button" @click="editMsg()" >Modify</button>
-              <button class="button" @click="deletePost()">Delete</button>
+            class="edit-button-edition"
+            v-if="post.userId == this.userInfo.userId || this.userInfo.admin == 1"
+          >
+            <div class="msgButton" @click="saveEdit(post._id)">
+              <i class="far fa-save fa-fw"></i>
+            </div>
+            <div class="cancelButton" @click="cancelEdit()">
+              <i class="far fa-window-close fa-fw"></i>
+            </div>
+            <div class="deleteButton" @click="deletePost()">
+              <i class="far fa-trash-alt fa-fw"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else>
+        <!-- post affichage-->
+        <div class="card-header">
+          <img :src="post.img" :alt="post.img" />
+        </div>
+        <div class="card-body">
+          <div class="user">
+            <img :src="post.profilPic" alt="user" />
+            <div class="user-name">
+              <hover v-bind:post="post" />
+            </div>
+          </div>
+          <div class="card-content">
+            {{ post.text }}
+          </div>
+          <div class="controls">
+            <div class="like-button" @click="postLike()">
+              <i class="far fa-heart"></i>
+            </div>
+            <div class="liked">{{ post.likes }}</div>
+          </div>
+          <div
+            class="edit-button"
+            v-if="post.userId == this.userInfo.userId || this.userInfo.admin == 1"
+          >
+            <div class="msgButton" @click="editMsg()">
+              <i class="far fa-edit fa-fw"></i>
+            </div>
+            <div class="deleteButton" @click="deletePost()">
+              <i class="far fa-trash-alt fa-fw"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -63,7 +76,6 @@
   </div>
   <commentForm :post="post"></commentForm>
   <comments :post="post"></comments>
-
 </template>
 
 <script>
@@ -80,15 +92,16 @@ export default {
     return {
       id: this.post._id,
       userInfo: {},
-      timeout: null,
-      showCard: false,
-      isLoaded: false,
+      max: 140,
+      text: "",
       isEditing: false,
+      isLoaded: false,
+      errorFileTypeEdit:""
     };
   },
   mounted() {
     axios
-      .get("http://localhost:5000/user", {
+      .get("http://localhost:5000/user/userInfo", {
         headers: { token: localStorage.getItem("token") },
       })
       .then((res) => {
@@ -103,29 +116,39 @@ export default {
       this.isEditing = false;
     },
     onSelect() {
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif"];
       const file = this.$refs.file.files[0];
-      this.file = file;
-      if (!allowedTypes.includes(file.type)) {
-        this.message = "Filetype is wrong!!";
+      if (allowedTypes.includes(file.type)) {
+        this.errorFileTypeEdit = "";
+        this.file = file;
+      } else if (!allowedTypes.includes(file.type)) {
+        this.file = ""
+        this.errorFileTypeEdit = "Seul les fichiers formats jpg/png/gif sont acceptés";
       }
     },
     saveEdit() {
+      confirm("Etes vous sur de vouloir modifier ce post ?");
       const id = this.id;
-      const formData = new FormData();
-      formData.append("file", this.file);
-      axios.post("http://localhost:5000/upload", formData);
-      let updatePost = {
-        img: this.file.name,
-        text: this.text,
-      };
-      axios.post("http://localhost:5000/updatePost/" + id, updatePost).then;
-      this.post = this.post.filter(() => id != id);
+      const postInfo = new FormData();
+      if (this.text !== undefined) {
+        postInfo.append("text", this.text);
+        this.post.text = this.text;
+      }
+      if (this.file !== undefined) {
+        postInfo.append("file", this.file);
+        axios.post("http://localhost:5000/post/update/" + id, postInfo);
+        let reader = new FileReader();
+        reader.onload = (e) => {
+          this.post.img = e.target.result;
+        };
+        reader.readAsDataURL(this.file);
+      }
+      this.isEditing = false;
     },
     deletePost() {
       const id = this.id;
       axios.delete("http://localhost:5000/post/" + id);
-      this.$el.parentNode.removeChild(this.$el);
+      this.$parent.deletePost(id);
     },
     postLike() {
       const id = this.id;
@@ -143,7 +166,6 @@ export default {
           like: 1,
           userId: this.userInfo.userId,
         };
-        console.log(liked);
         axios.post("http://localhost:5000/post/" + id, liked);
         post.likes += 1;
         post.usersLiked.push(this.userInfo.userId);
@@ -159,10 +181,12 @@ export default {
 .container {
   position: relative;
   margin: 0% 20%;
+  margin-top: 25px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  background-color: #4E5166;
 }
 .card {
   background-color: #fff;
@@ -170,36 +194,59 @@ export default {
   overflow: hidden;
   width: 100%;
 }
+
+.card-header{
+ margin-top: -20px;
+ background-color: #EAEEFF;
+}
 .card-header img {
+  max-height: 600px;
   width: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  margin-top: 18px;
 }
 .card-body {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
   align-items: flex-start;
-  padding: 5px;
-  background-color: blueviolet;
+  background-color: #7F8299;
+  margin-top: -4px;
+  border-bottom:1px #4E5166 solid;
+  border-top:1px #4E5166 solid;
 }
 
 .card-content {
-  font-size: 18px;
+  margin: 5px;
+  font-size: 20px;
+  padding-right: 20%;
+  word-break: break-all;
 }
 .user {
-  display: flex;
-  margin: 10px 10px 0px;
+  flex-direction: column;
+  justify-content: center;
+  width: 50px;
+  height: 100%;
+  padding: 10px 10px 0px;
+  border-right: 1px #4E5166 solid;
 }
 
 .user img {
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   margin-right: 10px;
   object-fit: cover;
+  border: 1px solid #4E5166;
 }
 
+.user-name {
+  font-size: 14px;
+  text-transform: uppercase;
+  text-align: center;
+  word-break: break-all;
+}
 .like-button {
+  cursor: pointer;
   position: absolute;
   bottom: 50px;
   right: 20px;
@@ -207,53 +254,138 @@ export default {
 }
 
 .like-button :hover {
+  font-weight: 600;
   color: red;
 }
 .liked {
   position: absolute;
   font-size: 20px;
   bottom: 50px;
-  right: 35px;
+  right: 45px;
 }
 
 /* edit */
+.card-header-edit {
+  padding: 10px 0px 0px 10px;
+  background-color: #4E5166;
+}
+.card-body-edit {
+  background: #4E5166;
+  padding: 10px;
+}
+
 .text-form {
   border: 1px solid black;
-  height: 100px;
+  width: 100%;
+  resize: none;
+  height: 50px;
 }
 
 .img-form {
   margin: 10px 0px 10px 5px;
 }
-
-.edit-button {
-  position: absolute;
-  bottom: 10px;
-  right: 20px;
+input {
+  display: none;
 }
 
-.button {
-  background: linear-gradient(to bottom, #f02809 5%, #f21c00 100%);
-  background-color: #f02809;
+label {
+  background-color: #4e5166;
+  border-radius: 3px;
+  border: 1px solid #0b0e07;
   display: inline-block;
   cursor: pointer;
   color: #ffffff;
-  font-family: Arial;
   font-size: 15px;
-  font-weight: bold;
-  padding: 5px 8px;
+  padding: 1px 20px;
   text-decoration: none;
-  text-shadow: 0px 1px 0px #7a2a1d;
+  text-shadow: 0px 1px 0px #263666;
 }
-.button:hover {
-  background-color: #f21c00;
+label:hover {
+  background-color: #625d78;
+}
+label:active {
+  position: relative;
+  top: 1px;
+}
+
+.msgButton,
+.saveButton {
+  position: absolute;
+  bottom: 10px;
+  right: 45px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.deleteButton {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.cancelButton {
+  position: absolute;
+  bottom: 15px;
+  right: 70px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.msgButton:hover,
+.saveButton:hover,
+.deleteButton:hover,
+.cancelButton:hover {
+  color: #f21c00;
 }
 
 @media only screen and (max-width: 600px) {
   .container {
     margin: 0% 0%;
-    background: rgb(221, 229, 244);
     padding: 10px;
   }
+}
+
+.like-button {
+  cursor: pointer;
+  position: absolute;
+  bottom: 50px;
+  right: 20px;
+  font-size: 20px;
+}
+
+.like-button :hover {
+  font-weight: 600;
+  color: red;
+}
+.liked {
+  position: absolute;
+  font-size: 20px;
+  bottom: 50px;
+  right: 45px;
+}
+
+.msgButton,
+.saveButton {
+  position: absolute;
+  bottom: 10px;
+  right: 45px;
+  font-size: 20px;
+  cursor: pointer;
+}
+.deleteButton {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.cancelButton {
+  position: absolute;
+  bottom: 10px;
+  right: 70px;
+  font-size: 20px;
+  cursor: pointer;
 }
 </style>

@@ -8,24 +8,12 @@ export default {
   name: "Landing",
   data() {
     return {
-      name: "",
-      email: "",
     };
   },
   created() {
     if (localStorage.getItem("token") === null) {
       this.$router.push("/");
     }
-  },
-  mounted() {
-    axios
-      .get("http://localhost:5000/user", {
-        headers: { token: localStorage.getItem("token") },
-      })
-      .then((res) => {
-        this.name = res.data.user.name;
-        this.email = res.data.user.email;
-      });
   },
   methods: {
     logout() {
@@ -38,15 +26,14 @@ export default {
 </script>
 <template>
   <Navbar />
-  <div>
     <Postform />
     <Posts />
-  </div>
 </template>
 
-<style>
+<style scoped>
 body {
   margin: 0;
   padding: 0;
 }
+
 </style>

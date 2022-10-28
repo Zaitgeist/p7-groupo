@@ -1,5 +1,5 @@
 <script>
-import Comment from "./Comment.vue";
+import comment from "./comment.vue";
 import axios from "axios";
 export default {
   name: "Comments",
@@ -14,27 +14,30 @@ export default {
   },
   mounted() {
     const id = this.id;
-    console.log("coucou")
-    axios.get("http://localhost:5000/getcomments/"+ id).then((res) => {
+    axios.get("http://localhost:5000/comment/"+ id).then((res) => {
       this.comments = res.data;
     });
   },
 
-  components: { Comment },
+  components: { comment },
 };
 </script>
 
 <template>
-  <Comment
+  <comment
     v-for="(comment, index) in comments.slice().reverse()"
-    v-bind:comment="comment"
-    v-bind:index="index">
-  </Comment>
+    v-bind:comment="comment">
+  </comment>
 </template>
 
 <style scoped>
 
-@media only screen and (max-width: 600px) {
 
+@media only screen and (max-width: 600px) {
+  .comment-container {
+    margin: 0% 0%;
+    background: #4E5166;
+    padding: 10px;
+  }
 }
 </style>

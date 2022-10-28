@@ -4,11 +4,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/Landing',
-      name: 'Landing',
-      component: () => import('../components/Landing.vue')
-    },
-    {
       path: '/Register',
       name: 'register',
       component: () => import('../components/Register.vue')
@@ -17,6 +12,11 @@ const router = createRouter({
       path: '/',
       name: 'login',
       component: () => import('../components/Login.vue')
+    },
+    {
+      path: '/Landing',
+      name: 'Landing',
+      component: () => import('../components/Landing.vue')
     },
     {
       path: '/profil',

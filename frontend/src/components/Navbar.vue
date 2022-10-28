@@ -10,7 +10,7 @@ export default {
     },
   mounted() {
     axios
-      .get("http://localhost:5000/user", {
+      .get("http://localhost:5000/user/userInfo", {
         headers: { token: localStorage.getItem("token") },
       })
       .then((res) => {
@@ -31,7 +31,7 @@ export default {
 
 <template>
   <div class="header">
-    <router-link :to="{ path: '/landing' }" class="logo">Groupomania</router-link>
+    <router-link :to="{ path: '/landing' }" ><img src="../assets/icon-left-font-monochrome-black.png" class="logo" alt="logo groupomania"></router-link>
     <div class="header-right">
       <router-link :to="{ path: '/profil' }">{{ name }}</router-link>
       <a @click="logout">logout</a>
@@ -40,36 +40,37 @@ export default {
 </template>
 
 <style scoped>
-  body {
-  margin: 0;
-  padding: 0;
-}
+
 .header {
   overflow: hidden;
-  background-color: #f1f1f1;
-  padding: 20px 10px;
+  background-color: #7F8299;
+  padding: 5px 5px;
+  height: 30px;
+  box-shadow: 0 2px 3px -2px rgb(10, 10, 10);
 }
 .header a {
-  float: left;
-  color: black;
   text-align: center;
-  padding: 12px;
+  padding: 0px 5px;
   text-decoration: none;
   font-size: 18px;
-  line-height: 25px;
   border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
-.header a.logo {
-  max-height: 300px;
-}
-
-.header a:hover {
-  background-color: #ddd;
+.header a:visited {
   color: black;
+}
+.header a:hover {
+  color: #EAEEFF;
+}
+
+.logo {
+height: 30px;
 }
 
 .header-right {
+  margin-top: 3px;
   float: right;
 }
 </style>

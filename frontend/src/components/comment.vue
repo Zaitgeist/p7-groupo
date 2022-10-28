@@ -5,17 +5,18 @@
         <div class="user">
           <img :src="comment.profilPic" alt="user" />
           <div class="username">
-          {{ comment.username }}
-            <p class="comment-content">
-              {{ comment.text }} toto
-            </p>
-            <div
-              class="button"
-            >
-              <button class="button" @click="deleteComment()">TOTO</button>
-            </div>
+            {{ comment.username }}
           </div>
         </div>
+            <div class="comment-content">
+              {{ comment.text }}
+            </div>
+            <div
+              class="comment-button"
+              v-if="comment.userId == this.userInfo.userId || this.userInfo.admin == 1"
+            >
+              <div class="button-delete" @click="deleteComment()"><i class="far fa-trash-alt fa-fw"></i></div>
+            </div>
       </div>
     </div>
   </div>
@@ -24,22 +25,19 @@
 <script>
 import axios from "axios";
 export default {
-  created() {
-  },
-  name: "Comment",
+  name: "comment",
   props: {
     comment: {},
   },
   data() {
     return {
-      id: this.comment._id,
       userInfo: {},
+      id: this.comment._id,
     };
   },
   mounted() {
-    console.log(comment.username)
     axios
-      .get("http://localhost:5000/user", {
+      .get("http://localhost:5000/user/userInfo", {
         headers: { token: localStorage.getItem("token") },
       })
       .then((res) => {
@@ -53,7 +51,6 @@ export default {
       this.$el.parentNode.removeChild(this.$el);
     },
   },
-  components: {},
 };
 </script>
 
@@ -65,66 +62,74 @@ export default {
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  border-top: black 1px solid;
 }
 .comment {
-  background-color: #fff;
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   width: 100%;
 }
-.comment-header img {
-  width: 100%;
-  object-fit: cover;
-}
 .comment-body {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
   align-items: flex-start;
-  padding: 5px;
-  background-color: blueviolet;
+  background-color: #EAEEFF;
 }
 
 .comment-content {
-  font-size: 18px;
+  margin: 5px;
+  font-size: 16px;
+  padding-right: 10%;
+  word-break: break-all;
+  
 }
 .user {
-  display: flex;
-  margin: 10px 10px 0px;
+  flex-direction: column;
+  justify-content: center;
+  width: 50px;
+  height: 100%;
+  padding: 5px 5px 5px 5px;
+  border-right: 1px #4E5166 solid;
 }
 
 .user img {
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
-  margin-right: 10px;
+  width: 35px;
+  height: 35px;
+  margin-left: 5px;
   object-fit: cover;
+  border: 1px solid #4E5166;
 }
-
-/* edit */
-
-.button {
-  background: linear-gradient(to bottom, #f02809 5%, #f21c00 100%);
-  background-color: #f02809;
-  display: inline-block;
+.username {
+  font-size: 12px;
+  text-transform: uppercase;
+  text-align: center;
+  word-break: break-all;
+}
+.button-delete {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  font-size: 20px;
   cursor: pointer;
-  color: #ffffff;
-  font-family: Arial;
-  font-size: 15px;
-  font-weight: bold;
-  padding: 5px 8px;
-  text-decoration: none;
-  text-shadow: 0px 1px 0px #7a2a1d;
 }
-.button:hover {
-  background-color: #f21c00;
+.button-delete :hover {
+  color: #f21c00;
 }
 
 @media only screen and (max-width: 600px) {
   .container {
     margin: 0% 0%;
-    background: rgb(221, 229, 244);
+    background: #4E5166;
     padding: 10px;
   }
+}
+
+.button-delete {
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+  font-size: 20px;
+  cursor: pointer;
 }
 </style>
