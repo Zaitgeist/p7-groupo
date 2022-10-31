@@ -13,10 +13,13 @@ npm run dev
 
 Normalement le site devrait etre live à l'adresse : http://127.0.0.1:5173/
 
+
 A la racine du dossier Backend creer un dossier "uploads"
 A la racine du dossier Backend creer un fichier ".env" avec les informations suivantes :
 
-mongo_uri = mongodb://localhost:27017/DB | A remplacer par l'url de connection à votre database mongo
+Creer une Database mongo nommée "DB"
+
+mongo_uri = mongodb://localhost:27017/DB | A remplacer par l'url de connection à votre database mongo 
 token = RANDOM_TOKEN | Renseigner un token si besoin
 
 Puis toujours a la racine du dossier Backend ouvrir un terminal puis exécuter la commande:
